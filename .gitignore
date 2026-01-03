@@ -27,3 +27,8 @@ Thumbs.db
 npm-debug.log*
 node_modules/
 package-lock.json
+
+CLAUDE.md
+frontend/CLAUDE.md
+backend/.env
+backend/src/main/resources/application.yml
