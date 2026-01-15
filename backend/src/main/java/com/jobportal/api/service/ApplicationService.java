@@ -1,0 +1,139 @@
+package com.jobportal.api.service;
+
+import com.jobportal.api.dto.application.*;
+import com.jobportal.api.model.*;
+import com.jobportal.api.repository.*;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
+import java.util.List;
+
+@Service
+public class ApplicationService {
+
+    private final ApplicationRepository applicationRepository;
+    private final JobRepository jobRepository;
+    private final UserRepository userRepository;
+    private final StorageService storageService;
+    private final EmailService emailService;
+
+    public ApplicationService(ApplicationRepository applicationRepository, JobRepository jobRepository,
+                               UserRepository userRepository, StorageService storageService,
+                               EmailService emailService) {
+        this.applicationRepository = applicationRepository;
+        this.jobRepository = jobRepository;
+        this.userRepository = userRepository;
+        this.storageService = storageService;
+        this.emailService = emailService;
+    }
+
+    @Transactional
+    public ApplicationDto apply(String jobId, MultipartFile resume, String coverLetter, String applicantEmail) {
+        User applicant = userRepository.findByEmail(applicantEmail)
+                .orElseThrow(() -> new IllegalArgumentException("ไม่พบผู้ใช้งาน"));
+        Job job = jobRepository.findById(jobId)
+                .orElseThrow(() -> new IllegalArgumentException("ไม่พบตำแหน่งงานนี้"));
+        if (applicationRepository.existsByJobAndApplicant(job, applicant)) {
+            throw new IllegalArgumentException("คุณได้สมัครงานนี้ไปแล้ว");
+        }
+
+        String resumeUrl = null;
+        String resumeFileName = null;
+        if (resume != null && !resume.isEmpty()) {
+            resumeUrl = storageService.uploadResume(resume, applicant.getId());
+            resumeFileName = resume.getOriginalFilename();
+        } else if (applicant.getResumeUrl() != null) {
+            resumeUrl = applicant.getResumeUrl();
+            resumeFileName = applicant.getResumeFileName();
+        }
+
+        Application application = new Application();
+        application.setJob(job);
+        application.setApplicant(applicant);
+        application.setResumeUrl(resumeUrl);
+        application.setResumeFileName(resumeFileName);
+        application.setCoverLetter(coverLetter);
+        application.setStatus(Application.ApplicationStatus.PENDING);
+
+        ApplicationTimeline initial = new ApplicationTimeline();
+        initial.setApplication(application);
+        initial.setStatus(Application.ApplicationStatus.PENDING);
+        initial.setMessage("ส่งใบสมัครแล้ว");
+        application.getTimeline().add(initial);
+
+        Application saved = applicationRepository.save(application);
+        emailService.sendNewApplicationEmail(job.getEmployer().getEmail(), job.getTitle(), applicant.getName());
+        return toDto(saved);
+    }
+
+    @Transactional(readOnly = true)
+    public Page<ApplicationDto> getMyApplications(String applicantEmail, Pageable pageable) {
+        User applicant = userRepository.findByEmail(applicantEmail)
+                .orElseThrow(() -> new IllegalArgumentException("ไม่พบผู้ใช้งาน"));
+        return applicationRepository.findByApplicantOrderByCreatedAtDesc(applicant, pageable).map(this::toDto);
+    }
+
+    @Transactional(readOnly = true)
+    public Page<ApplicationDto> getJobApplications(String jobId, String employerEmail, Pageable pageable) {
+        Job job = jobRepository.findById(jobId)
+                .orElseThrow(() -> new IllegalArgumentException("ไม่พบตำแหน่งงานนี้"));
+        if (!job.getEmployer().getEmail().equals(employerEmail)) {
+            throw new IllegalArgumentException("ไม่มีสิทธิ์ดูใบสมัครนี้");
+        }
+        return applicationRepository.findByJobOrderByCreatedAtDesc(job, pageable).map(this::toDto);
+    }
+
+    @Transactional
+    public ApplicationDto updateStatus(String id, UpdateStatusRequest request, String employerEmail) {
+        Application application = applicationRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("ไม่พบใบสมัคร"));
+        if (!application.getJob().getEmployer().getEmail().equals(employerEmail)) {
+            throw new IllegalArgumentException("ไม่มีสิทธิ์แก้ไขใบสมัครนี้");
+        }
+        application.setStatus(request.getStatus());
+
+        ApplicationTimeline entry = new ApplicationTimeline();
+        entry.setApplication(application);
+        entry.setStatus(request.getStatus());
+        entry.setMessage(request.getMessage() != null ? request.getMessage() : getDefaultMessage(request.getStatus()));
+        application.getTimeline().add(entry);
+
+        Application saved = applicationRepository.save(application);
+        emailService.sendApplicationStatusEmail(application.getApplicant().getEmail(),
+                application.getJob().getTitle(), request.getStatus().name(), request.getMessage());
+        return toDto(saved);
+    }
+
+    private String getDefaultMessage(Application.ApplicationStatus status) {
+        return switch (status) {
+            case REVIEWING -> "กำลังพิจารณาใบสมัครของคุณ";
+            case SHORTLISTED -> "ผ่านการคัดกรองเบื้องต้น";
+            case REJECTED -> "ขอบคุณสำหรับความสนใจ";
+            case HIRED -> "ยินดีต้อนรับเข้าสู่ทีม!";
+            default -> "อัปเดตสถานะใบสมัคร";
+        };
+    }
+
+    private ApplicationDto toDto(Application app) {
+        List<ApplicationDto.TimelineEntry> timeline = app.getTimeline().stream()
+                .map(t -> new ApplicationDto.TimelineEntry(t.getStatus(), t.getMessage(), t.getCreatedAt()))
+                .toList();
+        ApplicationDto dto = new ApplicationDto();
+        dto.setId(app.getId());
+        dto.setJobId(app.getJob().getId());
+        dto.setJobTitle(app.getJob().getTitle());
+        dto.setCompany(app.getJob().getCompany());
+        dto.setApplicantId(app.getApplicant().getId());
+        dto.setApplicantName(app.getApplicant().getName());
+        dto.setApplicantEmail(app.getApplicant().getEmail());
+        dto.setResumeUrl(app.getResumeUrl());
+        dto.setResumeFileName(app.getResumeFileName());
+        dto.setCoverLetter(app.getCoverLetter());
+        dto.setStatus(app.getStatus());
+        dto.setTimeline(timeline);
+        dto.setCreatedAt(app.getCreatedAt());
+        return dto;
+    }
+}
