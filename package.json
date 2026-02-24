@@ -1,0 +1,14 @@
+{
+  "name": "job-portal",
+  "version": "1.0.0",
+  "scripts": {
+    "dev": "concurrently --names \"BACKEND,FRONTEND\" --prefix-colors \"blue,green\" \"npm run backend\" \"npm run frontend\"",
+    "frontend": "npm run dev --prefix frontend",
+    "backend": "C:/Users/Tinnaphat/scoop/apps/maven/current/bin/mvn.cmd -f backend/pom.xml spring-boot:run -Djava.net.preferIPv4Stack=true",
+    "build": "npm run build --prefix frontend",
+    "start": "npm run start --prefix frontend"
+  },
+  "devDependencies": {
+    "concurrently": "^9.2.1"
+  }
+}
