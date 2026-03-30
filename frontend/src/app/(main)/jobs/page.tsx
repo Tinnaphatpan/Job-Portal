@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, Suspense } from 'react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { api } from '@/lib/api';
@@ -121,7 +121,7 @@ function JobCard({ job }: { job: Job }) {
 }
 
 // ===== Main Page =====
-export default function JobsPage() {
+function JobsContent() {
   const searchParams = useSearchParams();
 
   const [jobs, setJobs] = useState<Job[]>([]);
@@ -322,5 +322,13 @@ export default function JobsPage() {
         </div>
       </footer>
     </main>
+  );
+}
+
+export default function JobsPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-gray-50 flex items-center justify-center"><div className="text-gray-400">กำลังโหลด...</div></div>}>
+      <JobsContent />
+    </Suspense>
   );
 }
