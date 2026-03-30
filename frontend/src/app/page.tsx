@@ -147,8 +147,8 @@ export default function HomePage() {
           {STATS.map((stat, i) => (
             <div
               key={stat.label}
-              className="text-center flex flex-col items-center gap-2 opacity-0 animate-fade-in-up"
-              style={{ animationDelay: `${i * 0.12}s` }}
+              className="text-center flex flex-col items-center gap-2 reveal"
+              style={{ transitionDelay: `${i * 0.1}s` }}
             >
               <div className="w-12 h-12 rounded-xl flex items-center justify-center transition-transform hover:scale-110 hover:shadow-md" style={{ backgroundColor: '#493584' + '15', color: '#493584' }}>
                 {stat.icon}
@@ -163,7 +163,7 @@ export default function HomePage() {
       {/* Categories */}
       <section id="categories" className="py-16 px-4 bg-gray-50">
         <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-10">
+          <div className="text-center mb-10 reveal">
             <h2 className="text-3xl font-bold text-gray-900">สำรวจตามหมวดหมู่</h2>
             <p className="text-gray-500 mt-2">เลือกสายงานที่คุณสนใจ</p>
           </div>
@@ -172,8 +172,8 @@ export default function HomePage() {
               <Link
                 key={cat.label}
                 href={`/jobs?category=${encodeURIComponent(cat.label)}`}
-                className="bg-white rounded-2xl p-6 flex flex-col items-center gap-3 hover:shadow-lg hover:-translate-y-2 transition-all duration-300 border border-gray-100 group opacity-0 animate-scale-in"
-                style={{ animationDelay: `${i * 0.08}s` }}
+                className="bg-white rounded-2xl p-6 flex flex-col items-center gap-3 hover:shadow-lg hover:-translate-y-2 transition-all duration-300 border border-gray-100 group reveal-scale"
+                style={{ transitionDelay: `${i * 0.07}s` }}
               >
                 <span className="text-4xl group-hover:scale-110 transition-transform duration-300">{cat.icon}</span>
                 <p className="font-semibold text-gray-900">{cat.label}</p>
@@ -202,13 +202,13 @@ export default function HomePage() {
           <div className="absolute -top-20 -right-20 w-64 h-64 rounded-full opacity-10 bg-white" />
         </div>
         <div className="max-w-4xl mx-auto flex flex-col md:flex-row items-center justify-between gap-8 relative z-10">
-          <div>
+          <div className="reveal-left">
             <h2 className="text-3xl font-bold mb-2">คุณเป็นนายจ้าง?</h2>
             <p className="text-white/80">โพสต์ตำแหน่งงานและค้นหาผู้สมัครที่ใช่ได้ทันที ฟรี!</p>
           </div>
           <Link
             href="/register?role=EMPLOYER"
-            className="bg-white font-semibold px-8 py-4 rounded-full hover:bg-gray-50 transition-colors flex items-center gap-2 flex-shrink-0"
+            className="bg-white font-semibold px-8 py-4 rounded-full hover:bg-gray-50 transition-colors flex items-center gap-2 flex-shrink-0 reveal-right"
             style={{ color: '#f15a22' }}
           >
             โพสต์งานฟรี <ArrowRight className="w-4 h-4" />

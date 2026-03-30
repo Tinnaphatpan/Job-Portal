@@ -3,6 +3,7 @@ import { Noto_Sans_Thai } from 'next/font/google';
 import './globals.css';
 import { Toaster } from 'sonner';
 import NextAuthProvider from '@/components/providers/NextAuthProvider';
+import RevealProvider from '@/components/providers/RevealProvider';
 
 const notoSansThai = Noto_Sans_Thai({
   subsets: ['thai', 'latin'],
@@ -51,7 +52,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="th">
       <body className={`${notoSansThai.variable} font-sans antialiased`}>
         <NextAuthProvider>
-          {children}
+          <RevealProvider>
+            {children}
+          </RevealProvider>
           <Toaster richColors position="top-right" />
         </NextAuthProvider>
       </body>
