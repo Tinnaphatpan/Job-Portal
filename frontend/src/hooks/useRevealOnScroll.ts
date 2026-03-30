@@ -16,9 +16,18 @@ export function useRevealOnScroll() {
       { threshold: 0.1 }
     );
 
-    const elements = document.querySelectorAll('.reveal, .reveal-left, .reveal-right, .reveal-scale');
-    elements.forEach((el) => observer.observe(el));
+    const observe = (root: Element | Document = document) => {
+      root.querySelectorAll('.reveal:not(.revealed), .reveal-left:not(.revealed), .reveal-right:not(.revealed), .reveal-scale:not(.revealed)').forEach((el) => observer.observe(el));
+    };
 
-    return () => observer.disconnect();
+    observe();
+
+    const mutation = new MutationObserver(() => observe());
+    mutation.observe(document.body, { childList: true, subtree: true });
+
+    return () => {
+      observer.disconnect();
+      mutation.disconnect();
+    };
   }, []);
 }

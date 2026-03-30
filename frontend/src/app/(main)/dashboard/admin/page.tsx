@@ -223,7 +223,7 @@ export default function AdminDashboard() {
               { label: 'ใบสมัครทั้งหมด', value: stats?.totalApplications ?? '—', icon: <FileText className="w-5 h-5" />, color: '#f59e0b' },
               { label: 'รอพิจารณา', value: stats?.pendingApplications ?? '—', icon: <FileText className="w-5 h-5" />, color: '#f15a22' },
             ].map((s) => (
-              <div key={s.label} className="bg-white rounded-2xl border border-gray-100 p-5 flex items-center gap-4">
+              <div key={s.label} className="reveal-scale bg-white rounded-2xl border border-gray-100 p-5 flex items-center gap-4">
                 <div className="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0" style={{ backgroundColor: s.color + '15', color: s.color }}>
                   {s.icon}
                 </div>
@@ -258,7 +258,7 @@ export default function AdminDashboard() {
               </button>
             </div>
 
-            <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden">
+            <div className="reveal bg-white rounded-2xl border border-gray-100 overflow-hidden">
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
                   <thead className="bg-gray-50 border-b border-gray-100">
@@ -312,7 +312,7 @@ export default function AdminDashboard() {
 
         {/* ===== Jobs Tab ===== */}
         {tab === 'jobs' && (
-          <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden">
+          <div className="reveal bg-white rounded-2xl border border-gray-100 overflow-hidden">
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead className="bg-gray-50 border-b border-gray-100">

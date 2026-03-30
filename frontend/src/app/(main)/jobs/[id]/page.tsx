@@ -320,7 +320,7 @@ export default function JobDetailPage() {
           <div className="flex-1 min-w-0 space-y-5">
 
             {/* Job header card */}
-            <div className="bg-white rounded-2xl border border-gray-100 p-6">
+            <div className="reveal bg-white rounded-2xl border border-gray-100 p-6">
               <div className="flex items-start gap-4 mb-5">
                 {/* Company logo placeholder */}
                 <div
@@ -404,7 +404,7 @@ export default function JobDetailPage() {
             </div>
 
             {/* Description */}
-            <div className="bg-white rounded-2xl border border-gray-100 p-6">
+            <div className="reveal bg-white rounded-2xl border border-gray-100 p-6">
               <h2 className="font-bold text-gray-900 text-lg mb-4">รายละเอียดงาน</h2>
               <div className="text-gray-700 text-sm leading-relaxed whitespace-pre-line">
                 {job.description}
@@ -413,7 +413,7 @@ export default function JobDetailPage() {
 
             {/* Requirements */}
             {job.requirements && (
-              <div className="bg-white rounded-2xl border border-gray-100 p-6">
+              <div className="reveal bg-white rounded-2xl border border-gray-100 p-6">
                 <h2 className="font-bold text-gray-900 text-lg mb-4">คุณสมบัติที่ต้องการ</h2>
                 <div className="space-y-2">
                   {job.requirements.split('\n').filter(Boolean).map((req, i) => (
@@ -431,7 +431,7 @@ export default function JobDetailPage() {
 
             {/* Benefits */}
             {job.benefits && (
-              <div className="bg-white rounded-2xl border border-gray-100 p-6">
+              <div className="reveal bg-white rounded-2xl border border-gray-100 p-6">
                 <h2 className="font-bold text-gray-900 text-lg mb-4">สวัสดิการ</h2>
                 <div className="text-gray-700 text-sm leading-relaxed whitespace-pre-line">
                   {job.benefits}
@@ -441,7 +441,7 @@ export default function JobDetailPage() {
 
             {/* Related Jobs */}
             {relatedJobs.length > 0 && (
-              <div className="bg-white rounded-2xl border border-gray-100 p-6">
+              <div className="reveal bg-white rounded-2xl border border-gray-100 p-6">
                 <h2 className="font-bold text-gray-900 text-lg mb-4">งานที่คล้ายกัน</h2>
                 <div className="space-y-3">
                   {relatedJobs.map((rj) => (
@@ -480,7 +480,7 @@ export default function JobDetailPage() {
           {/* Sidebar */}
           <aside className="lg:w-72 flex-shrink-0 space-y-5">
             {/* Company info */}
-            <div className="bg-white rounded-2xl border border-gray-100 p-5">
+            <div className="reveal-right bg-white rounded-2xl border border-gray-100 p-5">
               <h3 className="font-bold text-gray-900 mb-4">ข้อมูลบริษัท</h3>
               <div className="flex items-center gap-3 mb-4">
                 <div
@@ -509,7 +509,7 @@ export default function JobDetailPage() {
             </div>
 
             {/* Quick summary */}
-            <div className="bg-white rounded-2xl border border-gray-100 p-5">
+            <div className="reveal-right bg-white rounded-2xl border border-gray-100 p-5">
               <h3 className="font-bold text-gray-900 mb-4">ข้อมูลงาน</h3>
               <div className="space-y-3 text-sm">
                 <div className="flex justify-between">
@@ -546,7 +546,7 @@ export default function JobDetailPage() {
 
             {/* Tags sidebar */}
             {job.tags && job.tags.length > 0 && (
-              <div className="bg-white rounded-2xl border border-gray-100 p-5">
+              <div className="reveal-right bg-white rounded-2xl border border-gray-100 p-5">
                 <div className="flex items-center gap-2 mb-3">
                   <Tag className="w-4 h-4 text-gray-400" />
                   <h3 className="font-bold text-gray-900">ทักษะที่ต้องการ</h3>
@@ -567,7 +567,7 @@ export default function JobDetailPage() {
 
             {/* Apply CTA */}
             <div
-              className="rounded-2xl p-5 text-white"
+              className="reveal-right rounded-2xl p-5 text-white"
               style={{ background: 'linear-gradient(135deg, #493584, #2f3592)' }}
             >
               <p className="font-bold mb-1">พร้อมสมัครงานแล้วหรือยัง?</p>

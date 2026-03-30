@@ -316,7 +316,7 @@ export default function EmployerDashboardPage() {
               { label: 'กำลังเปิดรับ', value: stats.activeJobs, icon: <Eye className="w-5 h-5" /> },
               { label: 'ใบสมัครล่าสุด', value: recentApplications.length, icon: <Users className="w-5 h-5" /> },
             ].map((stat) => (
-              <div key={stat.label} className="bg-white/10 rounded-xl p-3 backdrop-blur-sm">
+              <div key={stat.label} className="reveal-scale bg-white/10 rounded-xl p-3 backdrop-blur-sm">
                 <div className="flex items-center gap-2 text-white/70 text-xs mb-1">
                   {stat.icon}
                   {stat.label}
@@ -382,7 +382,7 @@ export default function EmployerDashboardPage() {
                 {jobs.map((job) => (
                   <div
                     key={job.id}
-                    className="bg-white rounded-2xl border border-gray-100 p-5 hover:shadow-sm transition-all"
+                    className="reveal bg-white rounded-2xl border border-gray-100 p-5 hover:shadow-sm transition-all"
                   >
                     <div className="flex items-start justify-between gap-3">
                       <div className="flex-1 min-w-0">
@@ -461,7 +461,7 @@ export default function EmployerDashboardPage() {
                   return (
                     <div
                       key={app.id}
-                      className="bg-white rounded-2xl border border-gray-100 p-5"
+                      className="reveal bg-white rounded-2xl border border-gray-100 p-5"
                     >
                       <div className="flex items-start justify-between gap-3">
                         <div className="flex-1 min-w-0">
