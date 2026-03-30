@@ -11,8 +11,39 @@ const notoSansThai = Noto_Sans_Thai({
 });
 
 export const metadata: Metadata = {
-  title: 'JobPortal — หางานดี มีคุณภาพ',
-  description: 'แพลตฟอร์มหางานและรับสมัครงานออนไลน์',
+  title: {
+    default: 'JobPortal — หางานดี มีคุณภาพ',
+    template: '%s | JobPortal',
+  },
+  description: 'แพลตฟอร์มหางานออนไลน์ เชื่อมต่อผู้หางานกับบริษัทชั้นนำกว่า 5,000 แห่ง ค้นหางานตามทักษะ จังหวัด และประเภทงาน สมัครงานง่าย ได้งานเร็ว',
+  keywords: ['หางาน', 'สมัครงาน', 'งานออนไลน์', 'job portal', 'หางานออนไลน์', 'ประกาศงาน', 'งานพาร์ทไทม์', 'งานประจำ', 'ฝึกงาน'],
+  authors: [{ name: 'JobPortal' }],
+  creator: 'JobPortal',
+  metadataBase: new URL('https://tinnaphatjobportal.vercel.app'),
+  alternates: {
+    canonical: '/',
+  },
+  openGraph: {
+    type: 'website',
+    locale: 'th_TH',
+    url: 'https://tinnaphatjobportal.vercel.app',
+    siteName: 'JobPortal',
+    title: 'JobPortal — หางานดี มีคุณภาพ',
+    description: 'แพลตฟอร์มหางานออนไลน์ เชื่อมต่อผู้หางานกับบริษัทชั้นนำกว่า 5,000 แห่ง',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'JobPortal — หางานดี มีคุณภาพ',
+    description: 'แพลตฟอร์มหางานออนไลน์ เชื่อมต่อผู้หางานกับบริษัทชั้นนำกว่า 5,000 แห่ง',
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+    },
+  },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
