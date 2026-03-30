@@ -9,7 +9,7 @@ import { useAuthStore } from '@/store/authStore';
 import Navbar from '@/components/layout/Navbar';
 import {
   Briefcase, User, Upload, FileText, Clock, CheckCircle,
-  XCircle, AlertCircle, ChevronRight, Building2, Edit3, Save, X
+  XCircle, AlertCircle, ChevronRight, Edit3, Save, X
 } from 'lucide-react';
 
 // ===== Types =====
@@ -67,7 +67,7 @@ function Avatar({ src, name, size = 56 }: { src?: string | null; name: string; s
 // ===== Main Page =====
 export default function DashboardPage() {
   const router = useRouter();
-  const { user, setTokens, updateUser } = useAuthStore();
+  const { user, updateUser } = useAuthStore();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const avatarInputRef = useRef<HTMLInputElement>(null);
 

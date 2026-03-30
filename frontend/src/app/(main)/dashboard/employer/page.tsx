@@ -8,7 +8,7 @@ import { useAuthStore } from '@/store/authStore';
 import Navbar from '@/components/layout/Navbar';
 import {
   Briefcase, Users, Plus, Eye, Clock, CheckCircle,
-  XCircle, AlertCircle, MapPin, Edit3, Trash2, ChevronRight,
+  XCircle, AlertCircle, MapPin, Trash2, ChevronRight,
 } from 'lucide-react';
 
 // ===== Types (matches backend DTO) =====
