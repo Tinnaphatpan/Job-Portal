@@ -38,6 +38,11 @@ public class AuthController {
         return ResponseEntity.ok(authService.getCurrentUser(request));
     }
 
+    @PostMapping("/google")
+    public ResponseEntity<AuthResponse> googleLogin(@RequestBody GoogleLoginRequest request) {
+        return ResponseEntity.ok(authService.googleLogin(request));
+    }
+
     @PostMapping("/change-password")
     public ResponseEntity<?> changePassword(@RequestBody ChangePasswordRequest request, Principal principal) {
         authService.changePassword(principal.getName(), request.getCurrentPassword(), request.getNewPassword());

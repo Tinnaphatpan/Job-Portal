@@ -86,6 +86,22 @@ public class AuthService {
                 toUserInfo(user));
     }
 
+    public AuthResponse googleLogin(GoogleLoginRequest request) {
+        User user = userRepository.findByEmail(request.getEmail())
+                .orElseGet(() -> {
+                    User newUser = new User();
+                    newUser.setEmail(request.getEmail());
+                    newUser.setName(request.getName() != null ? request.getName() : request.getEmail());
+                    newUser.setAvatar(request.getAvatar());
+                    newUser.setProvider(User.AuthProvider.GOOGLE);
+                    newUser.setProviderId(request.getProviderId());
+                    newUser.setEmailVerified(true);
+                    newUser.setRole(User.Role.JOBSEEKER);
+                    return userRepository.save(newUser);
+                });
+        return buildAuthResponse(user);
+    }
+
     public void changePassword(String email, String currentPassword, String newPassword) {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new IllegalArgumentException("ไม่พบผู้ใช้งาน"));
