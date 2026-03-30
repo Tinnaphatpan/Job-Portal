@@ -89,7 +89,7 @@ function JobCard({ job }: { job: Job }) {
   const typeColor = JOB_TYPE_COLORS[job.jobType] || '#493584';
   const typeLabel = JOB_TYPE_LABELS[job.jobType] || job.jobType;
   return (
-    <Link href={`/jobs/${job.id}`} className="block bg-white rounded-2xl border border-gray-100 p-5 hover:shadow-md hover:-translate-y-0.5 transition-all">
+    <Link href={`/jobs/${job.id}`} className="reveal block bg-white rounded-2xl border border-gray-100 p-5 hover:shadow-md hover:-translate-y-0.5 transition-all">
       <div className="flex items-start justify-between gap-3 mb-3">
         <div className="flex-1 min-w-0">
           <h3 className="font-semibold text-gray-900 text-base leading-tight truncate">{job.title}</h3>
@@ -251,7 +251,7 @@ function JobsContent() {
           )}
 
           {/* จำนวนผลลัพธ์ */}
-          <span className="ml-auto text-sm text-gray-400">
+          <span className="reveal ml-auto text-sm text-gray-400">
             พบ <span className="font-semibold text-gray-700">{totalElements}</span> ตำแหน่ง
           </span>
         </div>

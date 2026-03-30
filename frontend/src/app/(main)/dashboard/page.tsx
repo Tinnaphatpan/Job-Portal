@@ -212,7 +212,7 @@ export default function DashboardPage() {
               { label: 'ผ่านการคัดเลือก', value: stats.accepted, color: '#34d399' },
               { label: 'ไม่ผ่าน', value: stats.rejected, color: '#f87171' },
             ].map((stat) => (
-              <div key={stat.label} className="bg-white/10 rounded-xl p-3 text-center backdrop-blur-sm">
+              <div key={stat.label} className="reveal-scale bg-white/10 rounded-xl p-3 text-center backdrop-blur-sm">
                 <p className="text-2xl font-bold" style={{ color: stat.color }}>{stat.value}</p>
                 <p className="text-white/70 text-xs mt-0.5">{stat.label}</p>
               </div>
@@ -262,7 +262,7 @@ export default function DashboardPage() {
                 {applications.map((app) => {
                   const status = STATUS_CONFIG[app.status] || STATUS_CONFIG.PENDING;
                   return (
-                    <div key={app.id} className="bg-white rounded-2xl border border-gray-100 p-5 hover:shadow-sm transition-all">
+                    <div key={app.id} className="reveal bg-white rounded-2xl border border-gray-100 p-5 hover:shadow-sm transition-all">
                       <div className="flex items-start justify-between gap-3">
                         <div className="flex-1 min-w-0">
                           <Link href={`/jobs/${app.jobId}`} className="font-semibold text-gray-900 hover:underline text-base block truncate">{app.jobTitle}</Link>
@@ -286,7 +286,7 @@ export default function DashboardPage() {
 
         {/* ===== Profile Tab ===== */}
         {activeTab === 'profile' && (
-          <div className="bg-white rounded-2xl border border-gray-100 p-6">
+          <div className="reveal bg-white rounded-2xl border border-gray-100 p-6">
             <div className="flex items-center justify-between mb-6">
               <h2 className="font-bold text-gray-900 text-lg">ข้อมูลส่วนตัว</h2>
               {!isEditing ? (
@@ -383,7 +383,7 @@ export default function DashboardPage() {
 
         {/* ===== Resume Tab ===== */}
         {activeTab === 'resume' && (
-          <div className="bg-white rounded-2xl border border-gray-100 p-6">
+          <div className="reveal bg-white rounded-2xl border border-gray-100 p-6">
             <h2 className="font-bold text-gray-900 text-lg mb-2">Resume ของคุณ</h2>
             <p className="text-sm text-gray-500 mb-6">อัปโหลด Resume ในรูปแบบ PDF ขนาดไม่เกิน 5MB</p>
 
