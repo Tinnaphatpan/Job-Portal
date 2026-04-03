@@ -128,3 +128,7 @@
 .animate-float {
   animation: float 4s ease-in-out infinite;
 }
+
+.label {
+  @apply block text-sm font-medium text-gray-600 mb-1.5;
+}
