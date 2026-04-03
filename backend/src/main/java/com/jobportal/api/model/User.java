@@ -3,6 +3,7 @@ package com.jobportal.api.model;
 import jakarta.persistence.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Entity
@@ -52,6 +53,20 @@ public class User {
     @Column(columnDefinition = "TEXT")
     private String companyDescription;
 
+    // Extended profile fields
+    @Enumerated(EnumType.STRING)
+    private Gender gender;
+
+    private LocalDate birthDate;
+    private String nationality;
+    private String religion;
+
+    @Enumerated(EnumType.STRING)
+    private MilitaryStatus militaryStatus;
+
+    private Integer weight;
+    private Integer height;
+
     @CreationTimestamp
     private LocalDateTime createdAt;
 
@@ -60,6 +75,8 @@ public class User {
 
     public enum Role { JOBSEEKER, EMPLOYER, ADMIN }
     public enum AuthProvider { LOCAL, GOOGLE, LINE }
+    public enum Gender { MALE, FEMALE }
+    public enum MilitaryStatus { EXEMPTED, SERVED, NOT_YET, EXEMPTED_BY_CERT }
 
     public User() {}
 
@@ -102,6 +119,20 @@ public class User {
     public void setCompanyWebsite(String companyWebsite) { this.companyWebsite = companyWebsite; }
     public String getCompanyDescription() { return companyDescription; }
     public void setCompanyDescription(String companyDescription) { this.companyDescription = companyDescription; }
+    public Gender getGender() { return gender; }
+    public void setGender(Gender gender) { this.gender = gender; }
+    public LocalDate getBirthDate() { return birthDate; }
+    public void setBirthDate(LocalDate birthDate) { this.birthDate = birthDate; }
+    public String getNationality() { return nationality; }
+    public void setNationality(String nationality) { this.nationality = nationality; }
+    public String getReligion() { return religion; }
+    public void setReligion(String religion) { this.religion = religion; }
+    public MilitaryStatus getMilitaryStatus() { return militaryStatus; }
+    public void setMilitaryStatus(MilitaryStatus militaryStatus) { this.militaryStatus = militaryStatus; }
+    public Integer getWeight() { return weight; }
+    public void setWeight(Integer weight) { this.weight = weight; }
+    public Integer getHeight() { return height; }
+    public void setHeight(Integer height) { this.height = height; }
     public LocalDateTime getCreatedAt() { return createdAt; }
     public LocalDateTime getUpdatedAt() { return updatedAt; }
 }
