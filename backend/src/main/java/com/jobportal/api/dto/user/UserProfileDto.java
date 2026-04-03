@@ -1,6 +1,7 @@
 package com.jobportal.api.dto.user;
 
 import com.jobportal.api.model.User;
+import java.time.LocalDate;
 
 public class UserProfileDto {
     private String id;
@@ -15,6 +16,13 @@ public class UserProfileDto {
     private String companyName;
     private String companyWebsite;
     private User.Role role;
+    private User.Gender gender;
+    private LocalDate birthDate;
+    private String nationality;
+    private String religion;
+    private User.MilitaryStatus militaryStatus;
+    private Integer weight;
+    private Integer height;
 
     public UserProfileDto(User user) {
         this.id = user.getId();
@@ -29,6 +37,13 @@ public class UserProfileDto {
         this.companyName = user.getCompanyName();
         this.companyWebsite = user.getCompanyWebsite();
         this.role = user.getRole();
+        this.gender = user.getGender();
+        this.birthDate = user.getBirthDate();
+        this.nationality = user.getNationality();
+        this.religion = user.getReligion();
+        this.militaryStatus = user.getMilitaryStatus();
+        this.weight = user.getWeight();
+        this.height = user.getHeight();
     }
 
     public String getId() { return id; }
@@ -43,4 +58,11 @@ public class UserProfileDto {
     public String getCompanyName() { return companyName; }
     public String getCompanyWebsite() { return companyWebsite; }
     public User.Role getRole() { return role; }
+    public User.Gender getGender() { return gender; }
+    public LocalDate getBirthDate() { return birthDate; }
+    public String getNationality() { return nationality; }
+    public String getReligion() { return religion; }
+    public User.MilitaryStatus getMilitaryStatus() { return militaryStatus; }
+    public Integer getWeight() { return weight; }
+    public Integer getHeight() { return height; }
 }
