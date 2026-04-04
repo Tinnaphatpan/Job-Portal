@@ -12,6 +12,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
+import java.util.Objects;
 
 @Service
 public class JobService {
@@ -33,72 +34,37 @@ public class JobService {
         Page<Object[]> results = jobRepository.searchJobs(query, category, location, jobType, remote, pageable);
         List<JobSummaryDto> dtos = results.stream()
                 .map(row -> jobRepository.findById(row[0].toString()).map(this::toSummaryDto).orElse(null))
-                .filter(j -> j != null)
+                .filter(Objects::nonNull)
                 .toList();
         return new PageImpl<>(dtos, pageable, results.getTotalElements());
     }
 
     @Transactional
     public JobDetailDto getJob(String id) {
-        Job job = jobRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("ไม่พบตำแหน่งงานนี้"));
+        Job job = findJobById(id);
         jobRepository.incrementViewCount(id);
         return toDetailDto(job);
     }
 
     @Transactional
     public JobDetailDto createJob(CreateJobRequest request, String employerEmail) {
-        User employer = userRepository.findByEmail(employerEmail)
-                .orElseThrow(() -> new IllegalArgumentException("ไม่พบผู้ใช้งาน"));
-        Job job = new Job();
-        job.setEmployer(employer);
-        job.setTitle(request.getTitle());
-        job.setCompany(employer.getCompanyName() != null ? employer.getCompanyName() : employer.getName());
-        job.setCompanyLogo(employer.getCompanyLogo());
-        job.setLocation(request.getLocation());
-        job.setRemote(request.isRemote());
-        job.setJobType(request.getJobType());
-        job.setDescription(request.getDescription());
-        job.setRequirements(request.getRequirements());
-        job.setBenefits(request.getBenefits());
-        job.setSalaryMin(request.getSalaryMin());
-        job.setSalaryMax(request.getSalaryMax());
-        job.setCategory(request.getCategory());
-        job.setTags(request.getTags());
-        job.setDeadline(request.getDeadline());
-        job.setStatus(request.getStatus() != null ? request.getStatus() : Job.JobStatus.ACTIVE);
+        User employer = findUserByEmail(employerEmail);
+        Job job = buildJob(request, employer);
         return toDetailDto(jobRepository.save(job));
     }
 
     @Transactional
     public JobDetailDto updateJob(String id, CreateJobRequest request, String employerEmail) {
-        Job job = jobRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("ไม่พบตำแหน่งงานนี้"));
-        if (!job.getEmployer().getEmail().equals(employerEmail)) {
-            throw new IllegalArgumentException("ไม่มีสิทธิ์แก้ไขตำแหน่งงานนี้");
-        }
-        job.setTitle(request.getTitle());
-        job.setLocation(request.getLocation());
-        job.setRemote(request.isRemote());
-        job.setJobType(request.getJobType());
-        job.setDescription(request.getDescription());
-        job.setRequirements(request.getRequirements());
-        job.setBenefits(request.getBenefits());
-        job.setSalaryMin(request.getSalaryMin());
-        job.setSalaryMax(request.getSalaryMax());
-        job.setCategory(request.getCategory());
-        job.setTags(request.getTags());
-        job.setDeadline(request.getDeadline());
-        job.setStatus(request.getStatus());
+        Job job = findJobById(id);
+        verifyJobOwnership(job, employerEmail);
+        applyJobChanges(job, request);
         return toDetailDto(jobRepository.save(job));
     }
 
     @Transactional
     public void deleteJob(String id, String userEmail) {
-        Job job = jobRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("ไม่พบตำแหน่งงานนี้"));
-        User user = userRepository.findByEmail(userEmail)
-                .orElseThrow(() -> new IllegalArgumentException("ไม่พบผู้ใช้งาน"));
+        Job job = findJobById(id);
+        User user = findUserByEmail(userEmail);
         if (!job.getEmployer().getEmail().equals(userEmail) && user.getRole() != User.Role.ADMIN) {
             throw new IllegalArgumentException("ไม่มีสิทธิ์ลบตำแหน่งงานนี้");
         }
@@ -107,10 +73,53 @@ public class JobService {
 
     @Transactional(readOnly = true)
     public Page<JobSummaryDto> getMyJobs(String employerEmail, Pageable pageable) {
-        User employer = userRepository.findByEmail(employerEmail)
-                .orElseThrow(() -> new IllegalArgumentException("ไม่พบผู้ใช้งาน"));
+        User employer = findUserByEmail(employerEmail);
         return jobRepository.findByEmployerAndStatusOrderByCreatedAtDesc(employer, Job.JobStatus.ACTIVE, pageable)
                 .map(this::toSummaryDto);
+    }
+
+    // ===== Private Helpers =====
+
+    private Job findJobById(String id) {
+        return jobRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("ไม่พบตำแหน่งงานนี้"));
+    }
+
+    private User findUserByEmail(String email) {
+        return userRepository.findByEmail(email)
+                .orElseThrow(() -> new IllegalArgumentException("ไม่พบผู้ใช้งาน"));
+    }
+
+    private void verifyJobOwnership(Job job, String employerEmail) {
+        if (!job.getEmployer().getEmail().equals(employerEmail)) {
+            throw new IllegalArgumentException("ไม่มีสิทธิ์แก้ไขตำแหน่งงานนี้");
+        }
+    }
+
+    private Job buildJob(CreateJobRequest request, User employer) {
+        Job job = new Job();
+        job.setEmployer(employer);
+        job.setCompany(employer.getCompanyName() != null ? employer.getCompanyName() : employer.getName());
+        job.setCompanyLogo(employer.getCompanyLogo());
+        job.setStatus(request.getStatus() != null ? request.getStatus() : Job.JobStatus.ACTIVE);
+        applyJobChanges(job, request);
+        return job;
+    }
+
+    private void applyJobChanges(Job job, CreateJobRequest request) {
+        job.setTitle(request.getTitle());
+        job.setLocation(request.getLocation());
+        job.setRemote(request.isRemote());
+        job.setJobType(request.getJobType());
+        job.setDescription(request.getDescription());
+        job.setRequirements(request.getRequirements());
+        job.setBenefits(request.getBenefits());
+        job.setSalaryMin(request.getSalaryMin());
+        job.setSalaryMax(request.getSalaryMax());
+        job.setCategory(request.getCategory());
+        job.setTags(request.getTags());
+        job.setDeadline(request.getDeadline());
+        if (request.getStatus() != null) job.setStatus(request.getStatus());
     }
 
     private JobSummaryDto toSummaryDto(Job job) {
@@ -134,7 +143,7 @@ public class JobService {
     }
 
     private JobDetailDto toDetailDto(Job job) {
-        long appCount = applicationRepository.countByJob(job);
+        long applicationCount = applicationRepository.countByJob(job);
         User employer = job.getEmployer();
         JobDetailDto dto = new JobDetailDto();
         dto.setId(job.getId());
@@ -159,7 +168,7 @@ public class JobService {
         dto.setDeadline(job.getDeadline());
         dto.setViewCount(job.getViewCount());
         dto.setCreatedAt(job.getCreatedAt());
-        dto.setApplicationCount(appCount);
+        dto.setApplicationCount(applicationCount);
         return dto;
     }
 }
