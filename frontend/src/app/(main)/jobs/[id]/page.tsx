@@ -6,6 +6,7 @@ import { useParams, useRouter } from 'next/navigation';
 import { api } from '@/lib/api';
 import { useAuthStore } from '@/store/authStore';
 import Navbar from '@/components/layout/Navbar';
+import Footer from '@/components/layout/Footer';
 import {
   MapPin, Briefcase, Building2, Clock, Wifi, ArrowLeft,
   Calendar, Eye, Tag, CheckCircle, X
@@ -591,12 +592,7 @@ export default function JobDetailPage() {
         </div>
       </div>
 
-      {/* Footer */}
-      <footer className="bg-gray-900 text-gray-400 py-8 px-4 mt-12">
-        <div className="max-w-6xl mx-auto text-center text-sm">
-          <p>© 2025 JobPortal. สงวนลิขสิทธิ์</p>
-        </div>
-      </footer>
+      <Footer />
     </main>
   );
 }

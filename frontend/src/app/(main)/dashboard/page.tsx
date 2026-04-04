@@ -7,6 +7,7 @@ import { toast } from 'sonner';
 import { api } from '@/lib/api';
 import { useAuthStore } from '@/store/authStore';
 import Navbar from '@/components/layout/Navbar';
+import Footer from '@/components/layout/Footer';
 import {
   Briefcase, User, Upload, FileText, Clock, CheckCircle, XCircle,
   AlertCircle, ChevronRight, Edit3, Save, X, Plus, Trash2,
@@ -903,11 +904,7 @@ export default function DashboardPage() {
         </Modal>
       )}
 
-      <footer className="bg-gray-900 text-gray-400 py-8 px-4 mt-12">
-        <div className="max-w-6xl mx-auto text-center text-sm">
-          <p>© 2025 JobPortal. สงวนลิขสิทธิ์</p>
-        </div>
-      </footer>
+      <Footer />
     </main>
   );
 }

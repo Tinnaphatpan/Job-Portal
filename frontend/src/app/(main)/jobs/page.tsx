@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { api } from '@/lib/api';
 import Navbar from '@/components/layout/Navbar';
+import Footer from '@/components/layout/Footer';
 import { Search, MapPin, Briefcase, Clock, Building2, ChevronLeft, ChevronRight, Wifi, X } from 'lucide-react';
 
 // ===== Types =====
@@ -327,11 +328,7 @@ function JobsContent() {
         )}
       </div>
 
-      <footer className="bg-gray-900 text-gray-400 py-8 px-4 mt-12">
-        <div className="max-w-6xl mx-auto text-center text-sm">
-          <p>© 2025 JobPortal. สงวนลิขสิทธิ์</p>
-        </div>
-      </footer>
+      <Footer />
     </main>
   );
 }
