@@ -1,5 +1,6 @@
 package com.jobportal.api.model;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import org.hibernate.annotations.CreationTimestamp;
 import java.time.LocalDate;
@@ -45,6 +46,7 @@ public class WorkExperience {
     public void setStartDate(LocalDate startDate) { this.startDate = startDate; }
     public LocalDate getEndDate() { return endDate; }
     public void setEndDate(LocalDate endDate) { this.endDate = endDate; }
+    @JsonProperty("isCurrent")
     public boolean isCurrent() { return isCurrent; }
     public void setCurrent(boolean current) { isCurrent = current; }
     public String getDescription() { return description; }
