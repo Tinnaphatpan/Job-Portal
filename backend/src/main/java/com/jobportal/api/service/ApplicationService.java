@@ -31,38 +31,14 @@ public class ApplicationService {
 
     @Transactional
     public ApplicationDto apply(String jobId, MultipartFile resume, String coverLetter, String applicantEmail) {
-        User applicant = userRepository.findByEmail(applicantEmail)
-                .orElseThrow(() -> new IllegalArgumentException("ไม่พบผู้ใช้งาน"));
-        Job job = jobRepository.findById(jobId)
-                .orElseThrow(() -> new IllegalArgumentException("ไม่พบตำแหน่งงานนี้"));
+        User applicant = findUserByEmail(applicantEmail);
+        Job job = findJobById(jobId);
+
         if (applicationRepository.existsByJobAndApplicant(job, applicant)) {
             throw new IllegalArgumentException("คุณได้สมัครงานนี้ไปแล้ว");
         }
 
-        String resumeUrl = null;
-        String resumeFileName = null;
-        if (resume != null && !resume.isEmpty()) {
-            resumeUrl = storageService.uploadResume(resume, applicant.getId());
-            resumeFileName = resume.getOriginalFilename();
-        } else if (applicant.getResumeUrl() != null) {
-            resumeUrl = applicant.getResumeUrl();
-            resumeFileName = applicant.getResumeFileName();
-        }
-
-        Application application = new Application();
-        application.setJob(job);
-        application.setApplicant(applicant);
-        application.setResumeUrl(resumeUrl);
-        application.setResumeFileName(resumeFileName);
-        application.setCoverLetter(coverLetter);
-        application.setStatus(Application.ApplicationStatus.PENDING);
-
-        ApplicationTimeline initial = new ApplicationTimeline();
-        initial.setApplication(application);
-        initial.setStatus(Application.ApplicationStatus.PENDING);
-        initial.setMessage("ส่งใบสมัครแล้ว");
-        application.getTimeline().add(initial);
-
+        Application application = buildApplication(applicant, job, resume, coverLetter);
         Application saved = applicationRepository.save(application);
         emailService.sendNewApplicationEmail(job.getEmployer().getEmail(), job.getTitle(), applicant.getName());
         return toDto(saved);
@@ -70,15 +46,13 @@ public class ApplicationService {
 
     @Transactional(readOnly = true)
     public Page<ApplicationDto> getMyApplications(String applicantEmail, Pageable pageable) {
-        User applicant = userRepository.findByEmail(applicantEmail)
-                .orElseThrow(() -> new IllegalArgumentException("ไม่พบผู้ใช้งาน"));
+        User applicant = findUserByEmail(applicantEmail);
         return applicationRepository.findByApplicantOrderByCreatedAtDesc(applicant, pageable).map(this::toDto);
     }
 
     @Transactional(readOnly = true)
     public Page<ApplicationDto> getJobApplications(String jobId, String employerEmail, Pageable pageable) {
-        Job job = jobRepository.findById(jobId)
-                .orElseThrow(() -> new IllegalArgumentException("ไม่พบตำแหน่งงานนี้"));
+        Job job = findJobById(jobId);
         if (!job.getEmployer().getEmail().equals(employerEmail)) {
             throw new IllegalArgumentException("ไม่มีสิทธิ์ดูใบสมัครนี้");
         }
@@ -93,17 +67,58 @@ public class ApplicationService {
             throw new IllegalArgumentException("ไม่มีสิทธิ์แก้ไขใบสมัครนี้");
         }
         application.setStatus(request.getStatus());
-
-        ApplicationTimeline entry = new ApplicationTimeline();
-        entry.setApplication(application);
-        entry.setStatus(request.getStatus());
-        entry.setMessage(request.getMessage() != null ? request.getMessage() : getDefaultMessage(request.getStatus()));
-        application.getTimeline().add(entry);
+        application.getTimeline().add(buildTimelineEntry(application, request));
 
         Application saved = applicationRepository.save(application);
         emailService.sendApplicationStatusEmail(application.getApplicant().getEmail(),
                 application.getJob().getTitle(), request.getStatus().name(), request.getMessage());
         return toDto(saved);
+    }
+
+    // ===== Private Helpers =====
+
+    private User findUserByEmail(String email) {
+        return userRepository.findByEmail(email)
+                .orElseThrow(() -> new IllegalArgumentException("ไม่พบผู้ใช้งาน"));
+    }
+
+    private Job findJobById(String jobId) {
+        return jobRepository.findById(jobId)
+                .orElseThrow(() -> new IllegalArgumentException("ไม่พบตำแหน่งงานนี้"));
+    }
+
+    private Application buildApplication(User applicant, Job job, MultipartFile resume, String coverLetter) {
+        Application application = new Application();
+        application.setJob(job);
+        application.setApplicant(applicant);
+        application.setCoverLetter(coverLetter);
+        application.setStatus(Application.ApplicationStatus.PENDING);
+        setResume(application, applicant, resume);
+
+        ApplicationTimeline initial = new ApplicationTimeline();
+        initial.setApplication(application);
+        initial.setStatus(Application.ApplicationStatus.PENDING);
+        initial.setMessage("ส่งใบสมัครแล้ว");
+        application.getTimeline().add(initial);
+        return application;
+    }
+
+    private void setResume(Application application, User applicant, MultipartFile resume) {
+        if (resume != null && !resume.isEmpty()) {
+            application.setResumeUrl(storageService.uploadResume(resume, applicant.getId()));
+            application.setResumeFileName(resume.getOriginalFilename());
+        } else if (applicant.getResumeUrl() != null) {
+            application.setResumeUrl(applicant.getResumeUrl());
+            application.setResumeFileName(applicant.getResumeFileName());
+        }
+    }
+
+    private ApplicationTimeline buildTimelineEntry(Application application, UpdateStatusRequest request) {
+        ApplicationTimeline entry = new ApplicationTimeline();
+        entry.setApplication(application);
+        entry.setStatus(request.getStatus());
+        entry.setMessage(request.getMessage() != null ? request.getMessage() : getDefaultMessage(request.getStatus()));
+        return entry;
     }
 
     private String getDefaultMessage(Application.ApplicationStatus status) {
