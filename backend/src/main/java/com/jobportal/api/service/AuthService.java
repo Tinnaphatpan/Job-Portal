@@ -15,6 +15,8 @@ import org.springframework.stereotype.Service;
 @Service
 public class AuthService {
 
+    private static final String BEARER_PREFIX = "Bearer ";
+
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
@@ -35,14 +37,7 @@ public class AuthService {
         if (userRepository.existsByEmail(request.getEmail())) {
             throw new IllegalArgumentException("อีเมลนี้ถูกใช้งานแล้ว");
         }
-        User user = new User();
-        user.setEmail(request.getEmail());
-        user.setPassword(passwordEncoder.encode(request.getPassword()));
-        user.setName(request.getName());
-        user.setRole(request.getRole() != null ? request.getRole() : User.Role.JOBSEEKER);
-        user.setProvider(User.AuthProvider.LOCAL);
-        user.setCompanyName(request.getCompanyName());
-        user.setPhone(request.getPhone());
+        User user = buildNewLocalUser(request);
         userRepository.save(user);
         return buildAuthResponse(user);
     }
@@ -50,8 +45,7 @@ public class AuthService {
     public AuthResponse login(LoginRequest request) {
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword()));
-        User user = userRepository.findByEmail(request.getEmail())
-                .orElseThrow(() -> new IllegalArgumentException("ไม่พบผู้ใช้งาน"));
+        User user = findUserByEmail(request.getEmail());
         return buildAuthResponse(user);
     }
 
@@ -61,21 +55,62 @@ public class AuthService {
         if (!jwtService.isTokenValid(refreshToken, userDetails)) {
             throw new IllegalArgumentException("Refresh token ไม่ถูกต้องหรือหมดอายุ");
         }
-        User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new IllegalArgumentException("ไม่พบผู้ใช้งาน"));
+        User user = findUserByEmail(email);
         return buildAuthResponse(user);
     }
 
     public AuthResponse.UserInfo getCurrentUser(HttpServletRequest request) {
-        String authHeader = request.getHeader("Authorization");
-        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-            throw new IllegalArgumentException("ไม่พบ token");
-        }
-        String token = authHeader.substring(7);
+        String token = extractBearerToken(request);
         String email = jwtService.extractUsername(token);
-        User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new IllegalArgumentException("ไม่พบผู้ใช้งาน"));
+        User user = findUserByEmail(email);
         return toUserInfo(user);
+    }
+
+    public AuthResponse googleLogin(GoogleLoginRequest request) {
+        User user = userRepository.findByEmail(request.getEmail())
+                .orElseGet(() -> userRepository.save(buildNewGoogleUser(request)));
+        return buildAuthResponse(user);
+    }
+
+    public void changePassword(String email, String currentPassword, String newPassword) {
+        User user = findUserByEmail(email);
+        if (!passwordEncoder.matches(currentPassword, user.getPassword())) {
+            throw new IllegalArgumentException("รหัสผ่านปัจจุบันไม่ถูกต้อง");
+        }
+        user.setPassword(passwordEncoder.encode(newPassword));
+        user.setMustChangePassword(false);
+        userRepository.save(user);
+    }
+
+    // ===== Private Helpers =====
+
+    private User findUserByEmail(String email) {
+        return userRepository.findByEmail(email)
+                .orElseThrow(() -> new IllegalArgumentException("ไม่พบผู้ใช้งาน"));
+    }
+
+    private User buildNewLocalUser(RegisterRequest request) {
+        User user = new User();
+        user.setEmail(request.getEmail());
+        user.setPassword(passwordEncoder.encode(request.getPassword()));
+        user.setName(request.getName());
+        user.setRole(request.getRole() != null ? request.getRole() : User.Role.JOBSEEKER);
+        user.setProvider(User.AuthProvider.LOCAL);
+        user.setCompanyName(request.getCompanyName());
+        user.setPhone(request.getPhone());
+        return user;
+    }
+
+    private User buildNewGoogleUser(GoogleLoginRequest request) {
+        User user = new User();
+        user.setEmail(request.getEmail());
+        user.setName(request.getName() != null ? request.getName() : request.getEmail());
+        user.setAvatar(request.getAvatar());
+        user.setProvider(User.AuthProvider.GOOGLE);
+        user.setProviderId(request.getProviderId());
+        user.setEmailVerified(true);
+        user.setRole(User.Role.JOBSEEKER);
+        return user;
     }
 
     private AuthResponse buildAuthResponse(User user) {
@@ -86,31 +121,12 @@ public class AuthService {
                 toUserInfo(user));
     }
 
-    public AuthResponse googleLogin(GoogleLoginRequest request) {
-        User user = userRepository.findByEmail(request.getEmail())
-                .orElseGet(() -> {
-                    User newUser = new User();
-                    newUser.setEmail(request.getEmail());
-                    newUser.setName(request.getName() != null ? request.getName() : request.getEmail());
-                    newUser.setAvatar(request.getAvatar());
-                    newUser.setProvider(User.AuthProvider.GOOGLE);
-                    newUser.setProviderId(request.getProviderId());
-                    newUser.setEmailVerified(true);
-                    newUser.setRole(User.Role.JOBSEEKER);
-                    return userRepository.save(newUser);
-                });
-        return buildAuthResponse(user);
-    }
-
-    public void changePassword(String email, String currentPassword, String newPassword) {
-        User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new IllegalArgumentException("ไม่พบผู้ใช้งาน"));
-        if (!passwordEncoder.matches(currentPassword, user.getPassword())) {
-            throw new IllegalArgumentException("รหัสผ่านปัจจุบันไม่ถูกต้อง");
+    private String extractBearerToken(HttpServletRequest request) {
+        String authHeader = request.getHeader("Authorization");
+        if (authHeader == null || !authHeader.startsWith(BEARER_PREFIX)) {
+            throw new IllegalArgumentException("ไม่พบ token");
         }
-        user.setPassword(passwordEncoder.encode(newPassword));
-        user.setMustChangePassword(false);
-        userRepository.save(user);
+        return authHeader.substring(BEARER_PREFIX.length());
     }
 
     private AuthResponse.UserInfo toUserInfo(User user) {
