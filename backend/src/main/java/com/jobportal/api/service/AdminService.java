@@ -54,29 +54,20 @@ public class AdminService {
         if (userRepository.existsByEmail(request.getEmail())) {
             throw new IllegalArgumentException("อีเมลนี้ถูกใช้งานแล้ว");
         }
-        User user = new User();
-        user.setEmail(request.getEmail());
-        user.setName(request.getName());
-        user.setPassword(passwordEncoder.encode(request.getPassword()));
-        user.setPhone(request.getPhone());
-        user.setCompanyName(request.getCompanyName());
-        user.setRole(request.getRole() != null ? request.getRole() : User.Role.JOBSEEKER);
-        user.setMustChangePassword(true);
+        User user = buildNewUser(request);
         return new AdminUserDto(userRepository.save(user));
     }
 
     @Transactional
     public AdminUserDto toggleUserActive(String userId) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException("ไม่พบผู้ใช้งาน"));
+        User user = findUserById(userId);
         user.setActive(!user.isActive());
         return new AdminUserDto(userRepository.save(user));
     }
 
     @Transactional
     public void resetUserPassword(String userId, String newPassword) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException("ไม่พบผู้ใช้งาน"));
+        User user = findUserById(userId);
         user.setPassword(passwordEncoder.encode(newPassword));
         user.setMustChangePassword(true);
         userRepository.save(user);
@@ -97,9 +88,32 @@ public class AdminService {
 
     @Transactional
     public AdminJobDto updateJobStatus(String jobId, String status) {
-        Job job = jobRepository.findById(jobId)
-                .orElseThrow(() -> new IllegalArgumentException("ไม่พบงานนี้"));
+        Job job = findJobById(jobId);
         job.setStatus(Job.JobStatus.valueOf(status));
         return new AdminJobDto(jobRepository.save(job));
+    }
+
+    // ===== Private Helpers =====
+
+    private User findUserById(String userId) {
+        return userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("ไม่พบผู้ใช้งาน"));
+    }
+
+    private Job findJobById(String jobId) {
+        return jobRepository.findById(jobId)
+                .orElseThrow(() -> new IllegalArgumentException("ไม่พบงานนี้"));
+    }
+
+    private User buildNewUser(AdminCreateUserRequest request) {
+        User user = new User();
+        user.setEmail(request.getEmail());
+        user.setName(request.getName());
+        user.setPassword(passwordEncoder.encode(request.getPassword()));
+        user.setPhone(request.getPhone());
+        user.setCompanyName(request.getCompanyName());
+        user.setRole(request.getRole() != null ? request.getRole() : User.Role.JOBSEEKER);
+        user.setMustChangePassword(true);
+        return user;
     }
 }
