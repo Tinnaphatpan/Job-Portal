@@ -95,14 +95,16 @@ export default function AdminDashboard() {
     fetchUsers();
   }, [userFilter]);
 
-  const fetchStats = async () => {
+  const fetchStats = async (): Promise<void> => {
     try {
       const { data } = await api.get<AdminStats>('/admin/stats');
       setStats(data);
-    } catch { toast.error('โหลด stats ไม่สำเร็จ'); }
+    } catch {
+      toast.error('โหลด stats ไม่สำเร็จ');
+    }
   };
 
-  const fetchUsers = async () => {
+  const fetchUsers = async (): Promise<void> => {
     setIsLoading(true);
     try {
       const params = new URLSearchParams({ page: '0', size: '50' });
@@ -110,18 +112,24 @@ export default function AdminDashboard() {
       const { data } = await api.get<PageResponse<AdminUser>>(`/admin/users?${params}`);
       setUsers(data.content);
       setTotalUsers(data.totalElements);
-    } catch { } finally { setIsLoading(false); }
+    } catch {
+      // silently ignore
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  const fetchJobs = async () => {
+  const fetchJobs = async (): Promise<void> => {
     try {
       const { data } = await api.get<PageResponse<AdminJob>>('/admin/jobs?size=50');
       setJobs(data.content);
       setTotalJobs(data.totalElements);
-    } catch { }
+    } catch {
+      // silently ignore
+    }
   };
 
-  const handleCreateUser = async (e: React.FormEvent) => {
+  const handleCreateUser = async (e: React.FormEvent): Promise<void> => {
     e.preventDefault();
     setIsCreating(true);
     try {
@@ -134,18 +142,22 @@ export default function AdminDashboard() {
     } catch (err: unknown) {
       const msg = (err as { response?: { data?: { error?: string } } })?.response?.data?.error || 'เกิดข้อผิดพลาด';
       toast.error(msg);
-    } finally { setIsCreating(false); }
+    } finally {
+      setIsCreating(false);
+    }
   };
 
-  const handleToggleActive = async (u: AdminUser) => {
+  const handleToggleActive = async (u: AdminUser): Promise<void> => {
     try {
       await api.patch(`/admin/users/${u.id}/toggle-active`);
       toast.success(u.active ? 'ปิดใช้งานบัญชีแล้ว' : 'เปิดใช้งานบัญชีแล้ว');
       fetchUsers();
-    } catch { toast.error('เกิดข้อผิดพลาด'); }
+    } catch {
+      toast.error('เกิดข้อผิดพลาด');
+    }
   };
 
-  const handleResetPassword = async () => {
+  const handleResetPassword = async (): Promise<void> => {
     if (!resetTarget || !newPw) return;
     setIsResetting(true);
     try {
@@ -153,26 +165,33 @@ export default function AdminDashboard() {
       toast.success(`รีเซ็ตรหัสผ่านของ ${resetTarget.name} สำเร็จ`);
       setResetTarget(null);
       setNewPw('');
-    } catch { toast.error('เกิดข้อผิดพลาด'); }
-    finally { setIsResetting(false); }
+    } catch {
+      toast.error('เกิดข้อผิดพลาด');
+    } finally {
+      setIsResetting(false);
+    }
   };
 
-  const handleDeleteJob = async (job: AdminJob) => {
+  const handleDeleteJob = async (job: AdminJob): Promise<void> => {
     if (!confirm(`ลบงาน "${job.title}" ?`)) return;
     try {
       await api.delete(`/admin/jobs/${job.id}`);
       toast.success('ลบงานสำเร็จ');
       fetchJobs();
       fetchStats();
-    } catch { toast.error('เกิดข้อผิดพลาด'); }
+    } catch {
+      toast.error('เกิดข้อผิดพลาด');
+    }
   };
 
-  const handleJobStatus = async (job: AdminJob, status: string) => {
+  const handleJobStatus = async (job: AdminJob, status: string): Promise<void> => {
     try {
       await api.patch(`/admin/jobs/${job.id}/status`, { status });
       toast.success('อัปเดตสถานะงานสำเร็จ');
       fetchJobs();
-    } catch { toast.error('เกิดข้อผิดพลาด'); }
+    } catch {
+      toast.error('เกิดข้อผิดพลาด');
+    }
   };
 
   if (!user || user.role !== 'ADMIN') return null;

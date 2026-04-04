@@ -151,16 +151,27 @@ function JobsContent() {
       setJobs(data.content);
       setTotalPages(data.totalPages);
       setTotalElements(data.totalElements);
-    } catch { setJobs([]); }
-    finally { setIsLoading(false); }
+    } catch {
+      setJobs([]);
+    } finally {
+      setIsLoading(false);
+    }
   }, [search, category, location, jobType, remoteOnly, page]);
 
   useEffect(() => { fetchJobs(); }, [fetchJobs]);
 
-  const handleSearch = (e: React.FormEvent) => { e.preventDefault(); setPage(0); };
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    setPage(0);
+  };
 
   const clearAll = () => {
-    setSearch(''); setCategory(''); setLocation(''); setJobType(''); setRemoteOnly(false); setPage(0);
+    setSearch('');
+    setCategory('');
+    setLocation('');
+    setJobType('');
+    setRemoteOnly(false);
+    setPage(0);
   };
 
   const hasFilter = category || location || jobType || remoteOnly;

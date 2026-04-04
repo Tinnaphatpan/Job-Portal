@@ -80,7 +80,7 @@ export default function ChangePasswordPage() {
   if (!user) return null;
 
   return (
-    <div>
+    <section>
       <div className="lg:hidden flex items-center gap-2 mb-8">
         <div className="w-9 h-9 rounded-xl flex items-center justify-center text-white font-bold" style={{ backgroundColor: '#f15a22' }}>J</div>
         <span className="font-bold text-lg" style={{ color: '#493584' }}>JobPortal</span>
@@ -123,6 +123,6 @@ export default function ChangePasswordPage() {
           </button>
         </form>
       </div>
-    </div>
+    </section>
   );
 }

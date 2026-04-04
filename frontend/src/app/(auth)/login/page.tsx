@@ -32,7 +32,7 @@ export default function LoginPage() {
   };
 
   return (
-    <div>
+    <section>
       {/* Mobile logo */}
       <div className="lg:hidden flex items-center gap-2 mb-8">
         <div
@@ -155,8 +155,6 @@ export default function LoginPage() {
           เข้าสู่ระบบด้วย Google
         </button>
 
-        <div className="mt-6" />
-
         {/* Register link */}
         <p className="text-center text-sm text-gray-500">
           ยังไม่มีบัญชี?{' '}
@@ -176,6 +174,6 @@ export default function LoginPage() {
           ← กลับหน้าหลัก
         </Link>
       </p>
-    </div>
+    </section>
   );
 }

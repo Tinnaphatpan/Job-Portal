@@ -4,9 +4,9 @@ import Link from 'next/link';
 
 export default function AuthLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="min-h-screen flex">
+    <main className="min-h-screen flex">
       {/* Left Panel — Gradient */}
-      <div
+      <aside
         className="hidden lg:flex lg:w-1/2 flex-col justify-between p-12 relative overflow-hidden"
         style={{ background: 'linear-gradient(135deg, #493584 0%, #2f3592 50%, #1a237e 100%)' }}
       >
@@ -58,12 +58,12 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
         <div className="relative z-10 text-white/40 text-sm">
           © 2025 JobPortal. All rights reserved.
         </div>
-      </div>
+      </aside>
 
       {/* Right Panel — Form */}
-      <div className="w-full lg:w-1/2 flex items-center justify-center p-6 bg-gray-50">
+      <section className="w-full lg:w-1/2 flex items-center justify-center p-6 bg-gray-50">
         <div className="w-full max-w-md">{children}</div>
-      </div>
-    </div>
+      </section>
+    </main>
   );
 }

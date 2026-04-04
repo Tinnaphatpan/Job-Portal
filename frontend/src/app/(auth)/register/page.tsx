@@ -116,7 +116,7 @@ export default function RegisterPage() {
   };
 
   return (
-    <div>
+    <section>
       {/* Mobile logo */}
       <div className="lg:hidden flex items-center gap-2 mb-8">
         <div
@@ -473,6 +473,6 @@ export default function RegisterPage() {
           ← กลับหน้าหลัก
         </Link>
       </p>
-    </div>
+    </section>
   );
 }

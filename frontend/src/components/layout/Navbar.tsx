@@ -18,7 +18,6 @@ export default function Navbar() {
     router.push('/');
   };
 
-  // ปิด dropdown เมื่อคลิกข้างนอก
   useEffect(() => {
     const handler = (e: MouseEvent) => {
       if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {

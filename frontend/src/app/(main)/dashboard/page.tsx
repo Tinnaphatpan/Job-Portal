@@ -34,12 +34,12 @@ interface Language { id: string; language: string; level: string; }
 
 // ===== Constants =====
 const STATUS_CONFIG: Record<string, { label: string; color: string; bg: string; icon: React.ReactNode }> = {
-  PENDING:     { label: 'รอพิจารณา',         color: '#f59e0b', bg: '#fef3c7', icon: <Clock className="w-4 h-4" /> },
-  REVIEWING:   { label: 'กำลังพิจารณา',      color: '#3b82f6', bg: '#dbeafe', icon: <AlertCircle className="w-4 h-4" /> },
-  SHORTLISTED: { label: 'ผ่านการคัดกรอง',    color: '#8b5cf6', bg: '#ede9fe', icon: <CheckCircle className="w-4 h-4" /> },
-  ACCEPTED:    { label: 'ผ่านการคัดเลือก',   color: '#10b981', bg: '#d1fae5', icon: <CheckCircle className="w-4 h-4" /> },
-  HIRED:       { label: 'ได้รับการคัดเลือก', color: '#10b981', bg: '#d1fae5', icon: <CheckCircle className="w-4 h-4" /> },
-  REJECTED:    { label: 'ไม่ผ่านการคัดเลือก',color: '#ef4444', bg: '#fee2e2', icon: <XCircle className="w-4 h-4" /> },
+  PENDING: { label: 'รอพิจารณา', color: '#f59e0b', bg: '#fef3c7', icon: <Clock className="w-4 h-4" /> },
+  REVIEWING: { label: 'กำลังพิจารณา', color: '#3b82f6', bg: '#dbeafe', icon: <AlertCircle className="w-4 h-4" /> },
+  SHORTLISTED: { label: 'ผ่านการคัดกรอง', color: '#8b5cf6', bg: '#ede9fe', icon: <CheckCircle className="w-4 h-4" /> },
+  ACCEPTED: { label: 'ผ่านการคัดเลือก', color: '#10b981', bg: '#d1fae5', icon: <CheckCircle className="w-4 h-4" /> },
+  HIRED: { label: 'ได้รับการคัดเลือก', color: '#10b981', bg: '#d1fae5', icon: <CheckCircle className="w-4 h-4" /> },
+  REJECTED: { label: 'ไม่ผ่านการคัดเลือก', color: '#ef4444', bg: '#fee2e2', icon: <XCircle className="w-4 h-4" /> },
 };
 
 const MILITARY_OPTIONS = [
@@ -175,10 +175,16 @@ export default function DashboardPage() {
       ]);
       setProfile(pRes.data);
       setEditForm({
-        name: pRes.data.name || '', phone: pRes.data.phone || '', headline: pRes.data.headline || '',
-        bio: pRes.data.bio || '', gender: pRes.data.gender || '', birthDate: pRes.data.birthDate || '',
-        nationality: pRes.data.nationality || 'ไทย', religion: pRes.data.religion || 'พุทธ',
-        militaryStatus: pRes.data.militaryStatus || '', weight: pRes.data.weight?.toString() || '',
+        name: pRes.data.name || '',
+        phone: pRes.data.phone || '',
+        headline: pRes.data.headline || '',
+        bio: pRes.data.bio || '',
+        gender: pRes.data.gender || '',
+        birthDate: pRes.data.birthDate || '',
+        nationality: pRes.data.nationality || 'ไทย',
+        religion: pRes.data.religion || 'พุทธ',
+        militaryStatus: pRes.data.militaryStatus || '',
+        weight: pRes.data.weight?.toString() || '',
         height: pRes.data.height?.toString() || '',
       });
       setWorks(wRes.data || []);
@@ -193,15 +199,23 @@ export default function DashboardPage() {
     try {
       const { data } = await api.get<PageResponse<ApplicationDto>>('/applications/my');
       setApplications(data.content || []);
-    } catch { setApplications([]); } finally { setIsLoadingApps(false); }
+    } catch {
+      setApplications([]);
+    } finally {
+      setIsLoadingApps(false);
+    }
   }
 
   async function handleSaveProfile() {
     setIsSaving(true);
     try {
       const payload: Record<string, unknown> = {
-        name: editForm.name, phone: editForm.phone, headline: editForm.headline,
-        bio: editForm.bio, nationality: editForm.nationality, religion: editForm.religion,
+        name: editForm.name,
+        phone: editForm.phone,
+        headline: editForm.headline,
+        bio: editForm.bio,
+        nationality: editForm.nationality,
+        religion: editForm.religion,
       };
       if (editForm.gender) payload.gender = editForm.gender;
       if (editForm.birthDate) payload.birthDate = editForm.birthDate;
@@ -212,84 +226,158 @@ export default function DashboardPage() {
       setProfile(data);
       updateUser({ name: data.name });
       toast.success('บันทึกข้อมูลสำเร็จ');
-    } catch { toast.error('เกิดข้อผิดพลาด'); }
-    finally { setIsSaving(false); }
+    } catch {
+      toast.error('เกิดข้อผิดพลาด');
+    } finally {
+      setIsSaving(false);
+    }
   }
 
   async function handleAvatarUpload(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0]; if (!file) return;
+    const file = e.target.files?.[0];
+    if (!file) return;
     if (!file.type.startsWith('image/')) { toast.error('กรุณาเลือกไฟล์รูปภาพ'); return; }
     if (file.size > 2 * 1024 * 1024) { toast.error('ขนาดรูปต้องไม่เกิน 2MB'); return; }
     setIsUploadingAvatar(true);
     try {
-      const fd = new FormData(); fd.append('file', file);
+      const fd = new FormData();
+      fd.append('file', file);
       const { data } = await api.post<UserProfile>('/users/me/avatar', fd, { headers: { 'Content-Type': undefined } });
-      setProfile(data); updateUser({ avatar: data.avatar }); toast.success('อัปโหลดรูปสำเร็จ');
-    } catch { toast.error('อัปโหลดรูปไม่สำเร็จ'); } finally { setIsUploadingAvatar(false); }
+      setProfile(data);
+      updateUser({ avatar: data.avatar });
+      toast.success('อัปโหลดรูปสำเร็จ');
+    } catch {
+      toast.error('อัปโหลดรูปไม่สำเร็จ');
+    } finally {
+      setIsUploadingAvatar(false);
+    }
   }
 
   async function handleResumeUpload(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0]; if (!file) return;
+    const file = e.target.files?.[0];
+    if (!file) return;
     if (file.type !== 'application/pdf') { toast.error('PDF เท่านั้น'); return; }
     if (file.size > 5 * 1024 * 1024) { toast.error('ไม่เกิน 5MB'); return; }
     setIsUploadingResume(true);
     try {
-      const fd = new FormData(); fd.append('file', file);
+      const fd = new FormData();
+      fd.append('file', file);
       const { data } = await api.post<UserProfile>('/users/me/resume', fd, { headers: { 'Content-Type': undefined } });
-      setProfile(data); toast.success('อัปโหลด Resume สำเร็จ');
-    } catch { toast.error('อัปโหลดไม่สำเร็จ'); } finally { setIsUploadingResume(false); }
+      setProfile(data);
+      toast.success('อัปโหลด Resume สำเร็จ');
+    } catch {
+      toast.error('อัปโหลดไม่สำเร็จ');
+    } finally {
+      setIsUploadingResume(false);
+    }
   }
 
-  // Work CRUD
   async function saveWork() {
     try {
-      const payload = { ...workForm, startDate: workForm.startDate || null, endDate: workForm.isCurrent ? null : (workForm.endDate || null) };
-      if (workModal.editing) { const { data } = await api.put<WorkExp>(`/users/me/work-experiences/${workModal.editing.id}`, payload); setWorks(w => w.map(x => x.id === data.id ? data : x)); }
-      else { const { data } = await api.post<WorkExp>('/users/me/work-experiences', payload); setWorks(w => [data, ...w]); }
-      setWorkModal({ open: false }); toast.success('บันทึกสำเร็จ');
-    } catch { toast.error('เกิดข้อผิดพลาด'); }
-  }
-  async function deleteWork(id: string) {
-    await api.delete(`/users/me/work-experiences/${id}`); setWorks(w => w.filter(x => x.id !== id)); toast.success('ลบสำเร็จ');
+      const payload = {
+        ...workForm,
+        startDate: workForm.startDate || null,
+        endDate: workForm.isCurrent ? null : (workForm.endDate || null),
+      };
+      if (workModal.editing) {
+        const { data } = await api.put<WorkExp>(`/users/me/work-experiences/${workModal.editing.id}`, payload);
+        setWorks(w => w.map(x => x.id === data.id ? data : x));
+      } else {
+        const { data } = await api.post<WorkExp>('/users/me/work-experiences', payload);
+        setWorks(w => [data, ...w]);
+      }
+      setWorkModal({ open: false });
+      toast.success('บันทึกสำเร็จ');
+    } catch {
+      toast.error('เกิดข้อผิดพลาด');
+    }
   }
 
-  // Education CRUD
+  async function deleteWork(id: string) {
+    await api.delete(`/users/me/work-experiences/${id}`);
+    setWorks(w => w.filter(x => x.id !== id));
+    toast.success('ลบสำเร็จ');
+  }
+
   async function saveEdu() {
     try {
-      const payload = { institution: eduForm.institution, degree: eduForm.degree, field: eduForm.field, startYear: eduForm.startYear ? parseInt(eduForm.startYear) : null, endYear: eduForm.endYear ? parseInt(eduForm.endYear) : null, gpa: eduForm.gpa ? parseFloat(eduForm.gpa) : null };
-      if (eduModal.editing) { const { data } = await api.put<Education>(`/users/me/educations/${eduModal.editing.id}`, payload); setEducations(e => e.map(x => x.id === data.id ? data : x)); }
-      else { const { data } = await api.post<Education>('/users/me/educations', payload); setEducations(e => [data, ...e]); }
-      setEduModal({ open: false }); toast.success('บันทึกสำเร็จ');
-    } catch { toast.error('เกิดข้อผิดพลาด'); }
-  }
-  async function deleteEdu(id: string) {
-    await api.delete(`/users/me/educations/${id}`); setEducations(e => e.filter(x => x.id !== id)); toast.success('ลบสำเร็จ');
+      const payload = {
+        institution: eduForm.institution,
+        degree: eduForm.degree,
+        field: eduForm.field,
+        startYear: eduForm.startYear ? parseInt(eduForm.startYear) : null,
+        endYear: eduForm.endYear ? parseInt(eduForm.endYear) : null,
+        gpa: eduForm.gpa ? parseFloat(eduForm.gpa) : null,
+      };
+      if (eduModal.editing) {
+        const { data } = await api.put<Education>(`/users/me/educations/${eduModal.editing.id}`, payload);
+        setEducations(e => e.map(x => x.id === data.id ? data : x));
+      } else {
+        const { data } = await api.post<Education>('/users/me/educations', payload);
+        setEducations(e => [data, ...e]);
+      }
+      setEduModal({ open: false });
+      toast.success('บันทึกสำเร็จ');
+    } catch {
+      toast.error('เกิดข้อผิดพลาด');
+    }
   }
 
-  // Cert CRUD
+  async function deleteEdu(id: string) {
+    await api.delete(`/users/me/educations/${id}`);
+    setEducations(e => e.filter(x => x.id !== id));
+    toast.success('ลบสำเร็จ');
+  }
+
   async function saveCert() {
     try {
-      const payload = { name: certForm.name, issuer: certForm.issuer, issueDate: certForm.issueDate || null, expireDate: certForm.expireDate || null };
-      if (certModal.editing) { const { data } = await api.put<Certificate>(`/users/me/certificates/${certModal.editing.id}`, payload); setCerts(c => c.map(x => x.id === data.id ? data : x)); }
-      else { const { data } = await api.post<Certificate>('/users/me/certificates', payload); setCerts(c => [data, ...c]); }
-      setCertModal({ open: false }); toast.success('บันทึกสำเร็จ');
-    } catch { toast.error('เกิดข้อผิดพลาด'); }
-  }
-  async function deleteCert(id: string) {
-    await api.delete(`/users/me/certificates/${id}`); setCerts(c => c.filter(x => x.id !== id)); toast.success('ลบสำเร็จ');
+      const payload = {
+        name: certForm.name,
+        issuer: certForm.issuer,
+        issueDate: certForm.issueDate || null,
+        expireDate: certForm.expireDate || null,
+      };
+      if (certModal.editing) {
+        const { data } = await api.put<Certificate>(`/users/me/certificates/${certModal.editing.id}`, payload);
+        setCerts(c => c.map(x => x.id === data.id ? data : x));
+      } else {
+        const { data } = await api.post<Certificate>('/users/me/certificates', payload);
+        setCerts(c => [data, ...c]);
+      }
+      setCertModal({ open: false });
+      toast.success('บันทึกสำเร็จ');
+    } catch {
+      toast.error('เกิดข้อผิดพลาด');
+    }
   }
 
-  // Lang CRUD
+  async function deleteCert(id: string) {
+    await api.delete(`/users/me/certificates/${id}`);
+    setCerts(c => c.filter(x => x.id !== id));
+    toast.success('ลบสำเร็จ');
+  }
+
   async function saveLang() {
     try {
       const payload = { language: langForm.language, level: langForm.level };
-      if (langModal.editing) { const { data } = await api.put<Language>(`/users/me/languages/${langModal.editing.id}`, payload); setLangs(l => l.map(x => x.id === data.id ? data : x)); }
-      else { const { data } = await api.post<Language>('/users/me/languages', payload); setLangs(l => [...l, data]); }
-      setLangModal({ open: false }); toast.success('บันทึกสำเร็จ');
-    } catch { toast.error('เกิดข้อผิดพลาด'); }
+      if (langModal.editing) {
+        const { data } = await api.put<Language>(`/users/me/languages/${langModal.editing.id}`, payload);
+        setLangs(l => l.map(x => x.id === data.id ? data : x));
+      } else {
+        const { data } = await api.post<Language>('/users/me/languages', payload);
+        setLangs(l => [...l, data]);
+      }
+      setLangModal({ open: false });
+      toast.success('บันทึกสำเร็จ');
+    } catch {
+      toast.error('เกิดข้อผิดพลาด');
+    }
   }
+
   async function deleteLang(id: string) {
-    await api.delete(`/users/me/languages/${id}`); setLangs(l => l.filter(x => x.id !== id)); toast.success('ลบสำเร็จ');
+    await api.delete(`/users/me/languages/${id}`);
+    setLangs(l => l.filter(x => x.id !== id));
+    toast.success('ลบสำเร็จ');
   }
 
   if (!user) return null;
@@ -816,7 +904,9 @@ export default function DashboardPage() {
       )}
 
       <footer className="bg-gray-900 text-gray-400 py-8 px-4 mt-12">
-        <div className="max-w-6xl mx-auto text-center text-sm"><p>© 2025 JobPortal. สงวนลิขสิทธิ์</p></div>
+        <div className="max-w-6xl mx-auto text-center text-sm">
+          <p>© 2025 JobPortal. สงวนลิขสิทธิ์</p>
+        </div>
       </footer>
     </main>
   );

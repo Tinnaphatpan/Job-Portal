@@ -216,7 +216,7 @@ export default function EmployerDashboardPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user]);
 
-  const fetchMyJobs = async () => {
+  const fetchMyJobs = async (): Promise<void> => {
     setIsLoadingJobs(true);
     try {
       const { data } = await api.get<PageResponse<Job>>('/jobs/my');
@@ -228,7 +228,7 @@ export default function EmployerDashboardPage() {
     }
   };
 
-  const fetchApplicationsForJob = async (jobId: string) => {
+  const fetchApplicationsForJob = async (jobId: string): Promise<void> => {
     try {
       const { data } = await api.get<PageResponse<ApplicationDto>>(`/applications/jobs/${jobId}`);
       setRecentApplications(data.content || []);
@@ -237,7 +237,7 @@ export default function EmployerDashboardPage() {
     }
   };
 
-  const handleDeleteJob = async (jobId: string) => {
+  const handleDeleteJob = async (jobId: string): Promise<void> => {
     if (!confirm('ต้องการลบตำแหน่งงานนี้?')) return;
     try {
       await api.delete(`/jobs/${jobId}`);
@@ -247,7 +247,7 @@ export default function EmployerDashboardPage() {
     }
   };
 
-  const handleUpdateApplicationStatus = async (appId: string, status: string) => {
+  const handleUpdateApplicationStatus = async (appId: string, status: string): Promise<void> => {
     try {
       await api.patch(`/applications/${appId}/status`, { status });
       setRecentApplications((prev) =>
