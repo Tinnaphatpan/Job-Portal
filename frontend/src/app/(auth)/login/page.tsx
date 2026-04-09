@@ -39,16 +39,24 @@ export default function LoginPage() {
    *      3. ล้มเหลว: แสดงข้อความ error จาก backend
    */
   const handleGoogleLogin = async () => {
-    const { data, error } = await supabase.auth.signInWithOAuth({
-      provider: 'google',
-      options: { redirectTo: `${window.location.origin}/auth/callback` },
-    });
-    if (error) {
-      toast.error('เกิดข้อผิดพลาด: ' + error.message);
-      return;
-    }
-    if (data?.url) {
-      window.location.href = data.url;
+    toast.info('Step 1: กำลังเรียก Supabase...');
+    try {
+      const { data, error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: { redirectTo: `${window.location.origin}/auth/callback` },
+      });
+      if (error) {
+        toast.error('Step 2 Error: ' + error.message);
+        return;
+      }
+      if (data?.url) {
+        toast.success('Step 2 OK: กำลัง redirect...');
+        setTimeout(() => { window.location.href = data.url; }, 1000);
+      } else {
+        toast.error('Step 2: ไม่มี URL จาก Supabase');
+      }
+    } catch (e: unknown) {
+      toast.error('Exception: ' + (e instanceof Error ? e.message : String(e)));
     }
   };
 
