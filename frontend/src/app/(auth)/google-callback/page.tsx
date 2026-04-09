@@ -1,12 +1,12 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
+import { Suspense, useEffect, useRef } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useAuthStore } from '@/store/authStore';
 import { api } from '@/lib/api';
 import { toast } from 'sonner';
 
-export default function GoogleCallbackPage() {
+function GoogleCallbackInner() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { setTokens } = useAuthStore();
@@ -54,5 +54,21 @@ export default function GoogleCallbackPage() {
       />
       <p className="mt-4 text-gray-500 text-sm">กำลังเข้าสู่ระบบ...</p>
     </div>
+  );
+}
+
+export default function GoogleCallbackPage() {
+  return (
+    <Suspense fallback={
+      <div className="flex flex-col items-center justify-center py-20">
+        <div
+          className="w-12 h-12 rounded-full border-4 border-t-transparent animate-spin"
+          style={{ borderColor: '#493584', borderTopColor: 'transparent' }}
+        />
+        <p className="mt-4 text-gray-500 text-sm">กำลังเข้าสู่ระบบ...</p>
+      </div>
+    }>
+      <GoogleCallbackInner />
+    </Suspense>
   );
 }
