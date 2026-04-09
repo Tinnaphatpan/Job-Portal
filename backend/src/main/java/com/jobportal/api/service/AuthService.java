@@ -2,7 +2,6 @@ package com.jobportal.api.service;
 
 import com.jobportal.api.dto.auth.AuthResponse;
 import com.jobportal.api.dto.auth.ChangePasswordRequest;
-import com.jobportal.api.dto.auth.GoogleAuthRequest;
 import com.jobportal.api.dto.auth.LoginRequest;
 import com.jobportal.api.dto.auth.RefreshTokenRequest;
 import com.jobportal.api.dto.auth.RegisterRequest;
@@ -79,31 +78,6 @@ public class AuthService {
         user.setPassword(passwordEncoder.encode(newPassword));
         user.setMustChangePassword(false);
         userRepository.save(user);
-    }
-
-    public AuthResponse loginWithGoogle(GoogleAuthRequest request) {
-        User user = userRepository.findByEmail(request.getEmail()).orElse(null);
-
-        if (user == null) {
-            user = new User();
-            user.setEmail(request.getEmail());
-            user.setName(request.getName() != null ? request.getName() : request.getEmail());
-            user.setProvider(User.AuthProvider.GOOGLE);
-            user.setProviderId(request.getProviderId());
-            user.setEmailVerified(true);
-            user.setRole(User.Role.JOBSEEKER);
-            if (request.getAvatar() != null) {
-                user.setAvatar(request.getAvatar());
-            }
-            userRepository.save(user);
-        } else if (user.getProvider() != User.AuthProvider.GOOGLE) {
-            user.setProvider(User.AuthProvider.GOOGLE);
-            user.setProviderId(request.getProviderId());
-            user.setEmailVerified(true);
-            userRepository.save(user);
-        }
-
-        return buildAuthResponse(user);
     }
 
     // ===== Private Helpers =====
