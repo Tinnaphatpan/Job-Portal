@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback, Suspense } from 'react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
+import { toast } from 'sonner';
 import { api } from '@/lib/api';
 import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
@@ -153,6 +154,7 @@ function JobsContent() {
       setTotalPages(data.totalPages);
       setTotalElements(data.totalElements);
     } catch {
+      toast.error('โหลดตำแหน่งงานไม่สำเร็จ กรุณาลองใหม่');
       setJobs([]);
     } finally {
       setIsLoading(false);

@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
+import { toast } from 'sonner';
 import { api } from '@/lib/api';
 import { useAuthStore } from '@/store/authStore';
 import Navbar from '@/components/layout/Navbar';
@@ -119,7 +120,7 @@ function ApplyModal({ jobId, jobTitle, onClose }: ApplyModalProps) {
       const msg =
         (err as { response?: { data?: { error?: string } } })?.response?.data?.error ||
         'เกิดข้อผิดพลาด กรุณาลองใหม่';
-      alert(msg);
+      toast.error(msg);
     } finally {
       setIsSubmitting(false);
     }
@@ -247,7 +248,7 @@ export default function JobDetailPage() {
       return;
     }
     if (user.role !== 'JOBSEEKER') {
-      alert('เฉพาะผู้หางานเท่านั้นที่สมัครงานได้');
+      toast.error('เฉพาะผู้หางานเท่านั้นที่สมัครงานได้');
       return;
     }
     setShowApplyModal(true);

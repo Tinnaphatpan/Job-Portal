@@ -113,7 +113,7 @@ export default function AdminDashboard() {
       setUsers(data.content);
       setTotalUsers(data.totalElements);
     } catch {
-      // silently ignore
+      toast.error('โหลดข้อมูลผู้ใช้ไม่สำเร็จ');
     } finally {
       setIsLoading(false);
     }
@@ -125,7 +125,7 @@ export default function AdminDashboard() {
       setJobs(data.content);
       setTotalJobs(data.totalElements);
     } catch {
-      // silently ignore
+      toast.error('โหลดข้อมูลงานไม่สำเร็จ');
     }
   };
 

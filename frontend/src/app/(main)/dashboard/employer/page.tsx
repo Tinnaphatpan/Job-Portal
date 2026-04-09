@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { toast } from 'sonner';
 import { api } from '@/lib/api';
 import { useAuthStore } from '@/store/authStore';
 import Navbar from '@/components/layout/Navbar';
@@ -97,7 +98,7 @@ function CreateJobModal({ onClose, onSuccess }: CreateJobModalProps) {
       onSuccess();
     } catch (err: unknown) {
       const msg = (err as { response?: { data?: { error?: string } } })?.response?.data?.error || 'เกิดข้อผิดพลาด';
-      alert(msg);
+      toast.error(msg);
     } finally {
       setIsSubmitting(false);
     }
@@ -244,7 +245,7 @@ export default function EmployerDashboardPage() {
       await api.delete(`/jobs/${jobId}`);
       setJobs((prev) => prev.filter((j) => j.id !== jobId));
     } catch {
-      alert('ไม่สามารถลบได้');
+      toast.error('ไม่สามารถลบได้');
     }
   };
 
@@ -255,7 +256,7 @@ export default function EmployerDashboardPage() {
         prev.map((a) => (a.id === appId ? { ...a, status: status as ApplicationDto['status'] } : a))
       );
     } catch {
-      alert('เกิดข้อผิดพลาด');
+      toast.error('เกิดข้อผิดพลาด');
     }
   };
 

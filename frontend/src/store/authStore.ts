@@ -5,7 +5,6 @@
  *        - Current user data (id, name, email, role, avatar)
  *        - JWT access/refresh tokens
  *        - Login, register, and logout actions
- *        - Token injection for Google OAuth (setTokens)
  *        - Partial user updates without full re-login (updateUser)
  *
  *      Storage strategy:
@@ -23,7 +22,6 @@
  *        - ข้อมูล user ปัจจุบัน (id, ชื่อ, email, บทบาท, avatar)
  *        - JWT access/refresh tokens
  *        - action สำหรับ login, register, logout
- *        - การฉีด token สำหรับ Google OAuth (setTokens)
  *        - อัปเดตข้อมูล user บางส่วนโดยไม่ต้อง login ใหม่ (updateUser)
  *
  *      กลยุทธ์เก็บข้อมูล:
@@ -183,14 +181,8 @@ export const useAuthStore = create<AuthState>()(
       },
 
       /**
-       * [EN] setTokens — Inject tokens for Google OAuth flow.
-       *      Called from the google-callback page after Google OAuth succeeds.
-       *      The OAuth flow returns tokens directly from the backend callback,
-       *      so this function saves them in the same way as a normal login.
-       * [TH] setTokens — ฉีด token สำหรับ Google OAuth flow
-       *      ถูกเรียกจากหน้า google-callback หลัง Google OAuth สำเร็จ
-       *      OAuth flow ส่ง token กลับมาจาก backend โดยตรง
-       *      ฟังก์ชันนี้บันทึก token เหมือนกับการ login ปกติ
+       * [EN] setTokens — Inject tokens directly (e.g. after token refresh).
+       * [TH] setTokens — ฉีด token โดยตรง (เช่น หลัง refresh token)
        *
        * @param access  - New JWT access token
        * @param refresh - New JWT refresh token

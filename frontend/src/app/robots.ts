@@ -5,7 +5,7 @@ export default function robots(): MetadataRoute.Robots {
     rules: {
       userAgent: '*',
       allow: '/',
-      disallow: ['/dashboard/', '/change-password', '/google-callback'],
+      disallow: ['/dashboard/', '/change-password'],
     },
     sitemap: 'https://tinnaphatjobportal.vercel.app/sitemap.xml',
   };

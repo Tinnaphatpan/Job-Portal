@@ -1,6 +1,6 @@
 export type JobType = 'FULL_TIME' | 'PART_TIME' | 'CONTRACT' | 'INTERNSHIP' | 'FREELANCE';
 export type JobStatus = 'DRAFT' | 'ACTIVE' | 'CLOSED' | 'EXPIRED';
-export type ApplicationStatus = 'PENDING' | 'REVIEWING' | 'SHORTLISTED' | 'REJECTED' | 'HIRED';
+export type ApplicationStatus = 'PENDING' | 'REVIEWING' | 'SHORTLISTED' | 'ACCEPTED' | 'REJECTED' | 'HIRED';
 
 export interface Job {
   id: string;
@@ -67,6 +67,7 @@ export const APPLICATION_STATUS_LABELS: Record<ApplicationStatus, string> = {
   PENDING: 'รอพิจารณา',
   REVIEWING: 'กำลังพิจารณา',
   SHORTLISTED: 'ผ่านการคัดกรอง',
+  ACCEPTED: 'ผ่านการคัดเลือก',
   REJECTED: 'ไม่ผ่านการพิจารณา',
   HIRED: 'ได้รับการคัดเลือก',
 };
@@ -75,6 +76,7 @@ export const APPLICATION_STATUS_COLORS: Record<ApplicationStatus, string> = {
   PENDING: 'bg-gray-100 text-gray-600',
   REVIEWING: 'bg-blue-100 text-blue-600',
   SHORTLISTED: 'bg-yellow-100 text-yellow-600',
+  ACCEPTED: 'bg-green-100 text-green-600',
   REJECTED: 'bg-red-100 text-red-600',
   HIRED: 'bg-green-100 text-green-600',
 };
