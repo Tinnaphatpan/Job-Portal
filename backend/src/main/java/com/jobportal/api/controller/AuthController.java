@@ -1,6 +1,11 @@
 package com.jobportal.api.controller;
 
-import com.jobportal.api.dto.auth.*;
+import com.jobportal.api.dto.auth.AuthResponse;
+import com.jobportal.api.dto.auth.ChangePasswordRequest;
+import com.jobportal.api.dto.auth.GoogleAuthRequest;
+import com.jobportal.api.dto.auth.LoginRequest;
+import com.jobportal.api.dto.auth.RefreshTokenRequest;
+import com.jobportal.api.dto.auth.RegisterRequest;
 import com.jobportal.api.service.AuthService;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
@@ -39,8 +44,8 @@ public class AuthController {
     }
 
     @PostMapping("/google")
-    public ResponseEntity<AuthResponse> googleLogin(@RequestBody GoogleLoginRequest request) {
-        return ResponseEntity.ok(authService.googleLogin(request));
+    public ResponseEntity<AuthResponse> loginWithGoogle(@RequestBody GoogleAuthRequest request) {
+        return ResponseEntity.ok(authService.loginWithGoogle(request));
     }
 
     @PostMapping("/change-password")

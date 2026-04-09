@@ -1,6 +1,11 @@
 package com.jobportal.api.service;
 
-import com.jobportal.api.dto.auth.*;
+import com.jobportal.api.dto.auth.AuthResponse;
+import com.jobportal.api.dto.auth.ChangePasswordRequest;
+import com.jobportal.api.dto.auth.GoogleAuthRequest;
+import com.jobportal.api.dto.auth.LoginRequest;
+import com.jobportal.api.dto.auth.RefreshTokenRequest;
+import com.jobportal.api.dto.auth.RegisterRequest;
 import com.jobportal.api.model.User;
 import com.jobportal.api.repository.UserRepository;
 import com.jobportal.api.security.JwtService;
@@ -66,12 +71,6 @@ public class AuthService {
         return toUserInfo(user);
     }
 
-    public AuthResponse googleLogin(GoogleLoginRequest request) {
-        User user = userRepository.findByEmail(request.getEmail())
-                .orElseGet(() -> userRepository.save(buildNewGoogleUser(request)));
-        return buildAuthResponse(user);
-    }
-
     public void changePassword(String email, String currentPassword, String newPassword) {
         User user = findUserByEmail(email);
         if (!passwordEncoder.matches(currentPassword, user.getPassword())) {
@@ -80,6 +79,31 @@ public class AuthService {
         user.setPassword(passwordEncoder.encode(newPassword));
         user.setMustChangePassword(false);
         userRepository.save(user);
+    }
+
+    public AuthResponse loginWithGoogle(GoogleAuthRequest request) {
+        User user = userRepository.findByEmail(request.getEmail()).orElse(null);
+
+        if (user == null) {
+            user = new User();
+            user.setEmail(request.getEmail());
+            user.setName(request.getName() != null ? request.getName() : request.getEmail());
+            user.setProvider(User.AuthProvider.GOOGLE);
+            user.setProviderId(request.getProviderId());
+            user.setEmailVerified(true);
+            user.setRole(User.Role.JOBSEEKER);
+            if (request.getAvatar() != null) {
+                user.setAvatar(request.getAvatar());
+            }
+            userRepository.save(user);
+        } else if (user.getProvider() != User.AuthProvider.GOOGLE) {
+            user.setProvider(User.AuthProvider.GOOGLE);
+            user.setProviderId(request.getProviderId());
+            user.setEmailVerified(true);
+            userRepository.save(user);
+        }
+
+        return buildAuthResponse(user);
     }
 
     // ===== Private Helpers =====
@@ -98,18 +122,6 @@ public class AuthService {
         user.setProvider(User.AuthProvider.LOCAL);
         user.setCompanyName(request.getCompanyName());
         user.setPhone(request.getPhone());
-        return user;
-    }
-
-    private User buildNewGoogleUser(GoogleLoginRequest request) {
-        User user = new User();
-        user.setEmail(request.getEmail());
-        user.setName(request.getName() != null ? request.getName() : request.getEmail());
-        user.setAvatar(request.getAvatar());
-        user.setProvider(User.AuthProvider.GOOGLE);
-        user.setProviderId(request.getProviderId());
-        user.setEmailVerified(true);
-        user.setRole(User.Role.JOBSEEKER);
         return user;
     }
 
