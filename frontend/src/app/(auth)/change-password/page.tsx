@@ -14,13 +14,16 @@ export default function ChangePasswordPage() {
   const [show, setShow] = useState({ current: false, new: false, confirm: false });
   const [isLoading, setIsLoading] = useState(false);
 
+  // ถ้าไม่มีผู้ใช้ในสถานะล็อกอิน ให้ไปที่หน้าล็อกอินทันที
   useEffect(() => {
     if (!user) router.push('/login');
   }, [user, router]);
 
+  // ฟังก์ชันตรวจสอบความปลอดภัยของรหัสผ่านใหม่
+  
   const passwordValid = (pw: string) =>
     pw.length >= 11 && /[A-Z]/.test(pw) && /[a-z]/.test(pw) && /[0-9]/.test(pw);
-
+// ต้องมีอย่างน้อย 11 ตัวอักษร, พิมพ์ใหญ่, พิมพ์เล็ก และตัวเลข
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!passwordValid(form.newPassword)) {
@@ -50,8 +53,10 @@ export default function ChangePasswordPage() {
     }
   };
 
+  // คลาส CSS พื้นฐานสำหรับอินพุตรหัสผ่านทั้งหมด
   const inputClass = "w-full px-4 py-3 rounded-xl border border-gray-200 text-gray-800 text-sm outline-none transition focus:border-[#493584] focus:ring-2 focus:ring-[#493584]/10 placeholder:text-gray-400 pr-12";
 
+  // คอมโพเนนต์ย่อยสำหรับช่องกรอกรหัสผ่าน พร้อมปุ่มแสดง/ซ่อนรหัสผ่าน
   const PasswordInput = ({
     label, field, value, showKey,
   }: { label: string; field: 'currentPassword' | 'newPassword' | 'confirmPassword'; value: string; showKey: 'current' | 'new' | 'confirm' }) => (
